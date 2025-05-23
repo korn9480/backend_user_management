@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import { mainRouter } from './route';
 import { envConfig } from './config/environment';
+import { connectDatabase, disconnectDatabase } from './config/database';
 
 class Server {
     private app: Application;
@@ -19,18 +20,46 @@ class Server {
         
         // Parse URL-encoded bodies
         this.app.use(express.urlencoded({ extended: true }));
+
+        // Development logging
+        if (envConfig.NODE_ENV === 'development') {
+            this.app.use((req, res, next) => {
+                console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+                next();
+            });
+        }
     }
 
     private initializeRoutes(): void {
-        // Use main router
-        this.app.use(mainRouter);
+        // Use main router with API prefix
+        this.app.use("/api/v1", mainRouter);
+
+        // 404 handler
+        this.app.use('*', (req, res) => {
+            res.status(404).json({
+                status: 'error',
+                message: 'Route not found',
+                path: req.originalUrl,
+            });
+        });
     }
 
-    public start(): void {
-        this.app.listen(this.port, () => {
-            console.log(`🚀 Server is running on port ${this.port}`);
-            console.log(`📡 Health check available at: http://localhost:${this.port}/api/v1/health`);
-        });
+    public async start(): Promise<void> {
+        try {
+            // Connect to database first
+            await connectDatabase();
+
+            // Start server
+            this.app.listen(this.port, () => {
+                console.log(`🚀 Server is running on port ${this.port}`);
+                console.log(`📡 Health check: http://localhost:${this.port}/api/v1/health`);
+                console.log(`🌍 Environment: ${envConfig.NODE_ENV}`);
+                console.log('');
+            });
+        } catch (error) {
+            console.error('❌ Failed to start server:', error);
+            process.exit(1);
+        }
     }
 }
 

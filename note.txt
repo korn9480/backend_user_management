@@ -1,0 +1,8 @@
+docker network create dev
+
+npx prisma init --datasource-provider sqlite --output ../generated/prisma
+
+bunx prisma generate
+
+bunx prisma migrate dev --name init
+bunx prisma migrate reset

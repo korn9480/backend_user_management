@@ -11,7 +11,12 @@
     "dev:ts": "ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["express", "typescript", "user-management", "api"],
+  "keywords": [
+    "express",
+    "typescript",
+    "user-management",
+    "api"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -21,7 +26,12 @@
     "typescript": "^5.3.0"
   },
   "dependencies": {
+    "-": "^0.0.1",
+    "@prisma/client": "^6.8.2",
     "dotenv": "^16.5.0",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "express-validator": "^7.2.1",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.8.2"
   }
 }
