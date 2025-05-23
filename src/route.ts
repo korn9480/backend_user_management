@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { healthRoutes } from './routes/healthRoutes';
 import { userRoutes } from './routes/userRoutes';
+import { seedRoutes } from './routes/seedRoutes';
+import { authRoutes } from './routes/authRoutes';
 
 const router = Router();
 
@@ -9,6 +11,8 @@ const API_VERSION = '/api/v1';
 
 // Mount all routes with API version prefix
 router.use(healthRoutes);
-router.use(userRoutes)
+router.use(userRoutes);
+router.use(seedRoutes);
+router.use(authRoutes);
 
 export { router as mainRouter };

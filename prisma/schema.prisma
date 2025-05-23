@@ -15,7 +15,9 @@ model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
-  role      String
+  password  String
+  role_id   Int
+  role      Role     @relation("RoleToUsers", fields: [role_id], references: [id])
   createdAt DateTime @default(now())
 }
 
@@ -23,17 +25,22 @@ model Role {
   id        Int      @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now())
+  rolePermissions Role_Permission[]
+  users     User[]   @relation("RoleToUsers")
 }
 
 model Permission {
   id        Int      @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now())
+  rolePermissions Role_Permission[] @relation("PermissionsTorolePermissions")
 }
 
 model Role_Permission {
   id            Int      @id @default(autoincrement())
   role_id       Int
+  role          Role     @relation(fields: [role_id], references: [id])
   permission_id Int
+  permission    Permission @relation("PermissionsTorolePermissions", fields: [permission_id], references: [id])
   createdAt     DateTime @default(now())
 }

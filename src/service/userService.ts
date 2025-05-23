@@ -1,5 +1,6 @@
-import { Prisma, PrismaClient, User } from '../../generated/prisma/index';
+import { Prisma, PrismaClient, User } from '../../generated/prisma';
 import { PaginationOptions } from '../util/pagination';
+import { AuthService } from './authService';
 
 export interface UserWithPagination {
     users: User[];
@@ -8,9 +9,14 @@ export interface UserWithPagination {
 
 export class UserService {
     private readonly prisma: PrismaClient = new PrismaClient();
+    private readonly authService = new AuthService();
 
-    public async getUsersAll (): Promise<User[]> {
-        const data = await this.prisma.user.findMany();
+    public async getUsersAll(): Promise<User[]> {
+        const data = await this.prisma.user.findMany({
+            include: { 
+                role: true  // 🔥 Include role data
+            }
+        });
         return data;
     }    
 
@@ -29,7 +35,14 @@ export class UserService {
                     },
                     {
                         email: {
-                            startsWith: search
+                            contains: search,
+                        }
+                    },
+                    {
+                        role: {  // 🔥 Search in role name
+                            name: {
+                                contains: search,
+                            }
                         }
                     }
                 ]
@@ -42,8 +55,11 @@ export class UserService {
                 where: whereCondition,
                 skip: skip,
                 take: limit,
+                include: { 
+                    role: true  // 🔥 Include role data
+                },
                 orderBy: {
-                    createdAt: 'desc' // Order by newest first
+                    createdAt: 'desc'
                 }
             }),
             this.prisma.user.count({
@@ -57,33 +73,85 @@ export class UserService {
         };
     }
 
-    public async createUser(body: Prisma.UserCreateInput): Promise<User> {
+    public async createUser(body: Prisma.UserUncheckedCreateInput): Promise<User> {
+        // Hash password before saving
+        if (body.password) {
+            body.password = await this.authService.hashPassword(body.password);
+        }
+        console.log(">> body ",body)
         const user = await this.prisma.user.create({
-            data: body
+            data: body,
+            // data: {
+            //     // name: "tin",
+            //     // email: "tin@gmail.com",
+            //     // role_id: 1, // ใช้ ID ที่มีอยู่ของ role
+            //     // password: "$2b$12$g.OAOfXJ6Q/5L3uvgezgKe98Iyy4Dsb3WDmTB7mfrA3nom0FxgzUy"
+            // },
+            include: { 
+                role: true  // 🔥 Include role data in response
+            }
         });
         return user;
     }
 
     public async getUserById(id: number): Promise<User | null> {
         const user = await this.prisma.user.findUnique({
-            where: { id }
+            where: { id },
+            include: { 
+                role: true  // 🔥 Include role data
+            }
         });
         return user;
     }
 
-    public async updateUser(id: number, body: Prisma.UserUpdateInput): Promise<User> {
+    public async updateUser(id: number, body: Prisma.UserUncheckedUpdateInput): Promise<User> {
+        // Hash password if it's being updated
+        if (body.password && typeof body.password === 'string') {
+            body.password = await this.authService.hashPassword(body.password);
+        }
+
         const user = await this.prisma.user.update({
             where: { id },
-            data: body
+            data: body,
+            include: { 
+                role: true  // 🔥 Include role data in response
+            }
         });
         return user;
     }
 
     public async deleteUser(id: number): Promise<User> {
         const user = await this.prisma.user.delete({
-            where: { id }
+            where: { id },
+            include: { 
+                role: true  // 🔥 Include role data in response
+            }
         });
         return user;
     }
 
+    /**
+     * Get user by role ID
+     */
+    public async getUsersByRoleId(roleId: number): Promise<User[]> {
+        return await this.prisma.user.findMany({
+            where: { role_id: roleId },
+            include: { 
+                role: true
+            }
+        });
+    }
+
+    /**
+     * Update user's role
+     */
+    public async updateUserRole(userId: number, roleId: number): Promise<User> {
+        return await this.prisma.user.update({
+            where: { id: userId },
+            data: { role_id: roleId },
+            include: { 
+                role: true
+            }
+        });
+    }
 }

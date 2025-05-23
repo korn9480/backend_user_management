@@ -12,22 +12,26 @@ export interface EnvironmentConfig {
     CORS_ORIGIN: string;
 }
 
-class Environment {
+export class Environment {
     public readonly NODE_ENV: string;
     public readonly PORT: number;
     public readonly HOST: string;
     public readonly DATABASE_USER: string;
     public readonly DATABASE_PASSWORD: string;
-    public readonly DATABASE_NAME: string
+    public readonly DATABASE_NAME: string;
+    public readonly JWT_SECRET: string;
+    public readonly JWT_EXPIRES_IN: number ;
 
     constructor() {
         dotenv.config({path: path.resolve(__dirname, `.env.${process.env.NODE_ENV}`)});
         this.NODE_ENV = process.env.NODE_ENV || 'development';
         this.PORT = parseInt(process.env.PORT || '3000', 10);
         this.HOST = process.env.HOST || '';
-        this.DATABASE_USER = process.env.DATABASE_USER || ''
-        this.DATABASE_PASSWORD = process.env.DATABASE_PASSWORD || ''
-        this.DATABASE_NAME = process.env.DATABASE_NAME || ''
+        this.DATABASE_USER = process.env.DATABASE_USER || '';
+        this.DATABASE_PASSWORD = process.env.DATABASE_PASSWORD || '';
+        this.DATABASE_NAME = process.env.DATABASE_NAME || '';
+        this.JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
+        this.JWT_EXPIRES_IN = parseInt(process.env.JWT_EXPIRES_IN || '3600', 10);
     }
 }
 

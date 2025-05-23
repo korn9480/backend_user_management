@@ -1,18 +1,19 @@
 import { Request, Response } from "express";
 import { UserService } from "../service/userService";
 import { ApiResponse, ApiResponseVaildato, PaginatedResponse } from '../type/response/response';
-import { User } from "../../generated/prisma";
+import { Prisma, User } from "../../generated/prisma";
 import { ValidationError, validationResult } from "express-validator";
 import { PaginationHelper } from '../util/pagination';
+import { RoleService } from "../service/roleService";
 
 
 export class UserController {
     private readonly userService = new UserService();
+    private readonly roleService = new RoleService();
 
     public createUser = async (req: Request, res: Response): Promise<void> => {
         try {
             const errors = validationResult(req)
-            console.log(">>> error ",errors.isEmpty())
             if (!errors.isEmpty()) {
                 const resError: ApiResponseVaildato<ValidationError[]> = {
                     message: "user created error validation",
@@ -23,9 +24,13 @@ export class UserController {
                 return
             }
             const user = await this.userService.createUser(req.body);
-            const resData: ApiResponse<User> = {
+            
+            // Remove password from response
+            const { password: _, ...userWithoutPassword } = user;
+            
+            const resData: ApiResponse<typeof userWithoutPassword> = {
                 message: "user created successfully",
-                data: user,
+                data: userWithoutPassword,
                 status: "success"
             };
             res.json(resData);
@@ -62,9 +67,13 @@ export class UserController {
                 res.status(404).json(resError);
                 return;
             }
-            const resData: ApiResponse<User> = {
+            
+            // Remove password from response
+            const { password: _, ...userWithoutPassword } = user;
+            
+            const resData: ApiResponse<typeof userWithoutPassword> = {
                 message: "user get by id successfully",
-                data: user,
+                data: userWithoutPassword,
                 status: "success"
             };
             res.json(resData);
@@ -95,6 +104,12 @@ export class UserController {
                 search: search as string
             });
 
+            // Remove passwords from response
+            const usersWithoutPasswords = users.map(user => {
+                const { password: _, ...userWithoutPassword } = user;
+                return userWithoutPassword;
+            });
+
             // Calculate pagination metadata
             const paginationMeta = PaginationHelper.calculatePagination(
                 totalCount,
@@ -103,10 +118,10 @@ export class UserController {
             );
 
             // Prepare response
-            const resData: PaginatedResponse<User> = {
+            const resData: PaginatedResponse<typeof usersWithoutPasswords[0]> = {
                 status: "success",
                 message: "Get users successfully",
-                data: users,
+                data: usersWithoutPasswords,
                 pagination: paginationMeta
             };
 
@@ -148,9 +163,13 @@ export class UserController {
 
             // Update user
             const updatedUser = await this.userService.updateUser(userId, req.body);
-            const resData: ApiResponse<User> = {
+            
+            // Remove password from response
+            const { password: _, ...userWithoutPassword } = updatedUser;
+            
+            const resData: ApiResponse<typeof userWithoutPassword> = {
                 message: "user updated successfully",
-                data: updatedUser,
+                data: userWithoutPassword,
                 status: "success"
             };
             res.json(resData);
@@ -191,9 +210,13 @@ export class UserController {
 
             // Delete user
             const deletedUser = await this.userService.deleteUser(userId);
-            const resData: ApiResponse<User> = {
+            
+            // Remove password from response
+            const { password: _, ...userWithoutPassword } = deletedUser;
+            
+            const resData: ApiResponse<typeof userWithoutPassword> = {
                 message: "user deleted successfully",
-                data: deletedUser,
+                data: userWithoutPassword,
                 status: "success"
             };
             res.json(resData);
