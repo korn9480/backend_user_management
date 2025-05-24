@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import { mainRouter } from './route';
 import { envConfig } from './config/environment';
 import { connectDatabase, disconnectDatabase } from './config/database';
+import cors from 'cors';
 
 class Server {
     private app: Application;
@@ -31,6 +32,12 @@ class Server {
     }
 
     private initializeRoutes(): void {
+        this.app.use(cors({
+            origin: '*',
+            // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            // allowedHeaders: ['Content-Type', 'Authorization'],
+            // credentials: true,
+        }));
         // Use main router with API prefix
         this.app.use("/api/v1", mainRouter);
 

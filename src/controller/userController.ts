@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../service/userService";
 import { ApiResponse, ApiResponseVaildato, PaginatedResponse } from '../type/response/response';
-import { Prisma, User } from "../../generated/prisma";
 import { ValidationError, validationResult } from "express-validator";
 import { PaginationHelper } from '../util/pagination';
 import { RoleService } from "../service/roleService";

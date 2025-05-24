@@ -1,6 +1,5 @@
-import { PrismaClient } from '../../generated/prisma';
+import {PrismaClient} from '@/prisma'
 import { envConfig } from './environment';
-// import { PrismaClient } from '@prisma/client';
 
 // Database connection configuration
 export const databaseConfig = {

@@ -81,7 +81,6 @@ export class AuthController {
 
             res.json(resData);
         } catch (error) {
-            console.error('Get profile error:', error);
             const resError: ApiResponse<undefined> = {
                 status: "error",
                 message: "Failed to retrieve profile"
@@ -122,7 +121,6 @@ export class AuthController {
 
             res.json(resData);
         } catch (error) {
-            console.error('Token verification error:', error);
             const resError: ApiResponse<{
                 valid: boolean;
             }> = {

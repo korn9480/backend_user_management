@@ -3,7 +3,7 @@ import { AuthService } from '../service/authService';
 import { ApiResponse } from '../type/response/response';
 
 const authService: AuthService = new AuthService();
-export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
+export function isAuthenticated(req: any, res: Response, next: NextFunction) {
     const token = req.headers.authorization;
   if (!token) {
     const resError: ApiResponse<undefined> = {
@@ -14,7 +14,8 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
   }
   try {
     const [_, subtoken] = token.split(" ")
-    authService.verifyToken(subtoken)
+    const dataUser = authService.verifyToken(subtoken)
+    req.user = dataUser
   } catch (error) {
       const resError: ApiResponse<undefined> = {
         message: "Unauthorized",

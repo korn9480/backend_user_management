@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, User } from '../../generated/prisma';
+import { Prisma, PrismaClient, User } from '@/prisma';
 import { PaginationOptions } from '../util/pagination';
 import { AuthService } from './authService';
 
@@ -78,15 +78,8 @@ export class UserService {
         if (body.password) {
             body.password = await this.authService.hashPassword(body.password);
         }
-        console.log(">> body ",body)
         const user = await this.prisma.user.create({
             data: body,
-            // data: {
-            //     // name: "tin",
-            //     // email: "tin@gmail.com",
-            //     // role_id: 1, // ใช้ ID ที่มีอยู่ของ role
-            //     // password: "$2b$12$g.OAOfXJ6Q/5L3uvgezgKe98Iyy4Dsb3WDmTB7mfrA3nom0FxgzUy"
-            // },
             include: { 
                 role: true  // 🔥 Include role data in response
             }
