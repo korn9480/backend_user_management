@@ -38,10 +38,10 @@ export class AuthController {
             res.json(resData);
         } catch (error) {            
             // Handle specific authentication errors
-            if (error instanceof Error && error.message === 'Invalid email or password') {
+            if (error instanceof Error ) {
                 const resError: ApiResponse<undefined> = {
                     status: "error",
-                    message: "Invalid email or password"
+                    message: error.message
                 };
                 res.status(401).json(resError);
                 return;

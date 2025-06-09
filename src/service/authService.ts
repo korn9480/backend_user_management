@@ -87,13 +87,13 @@ export class AuthService {
         });
 
         if (!user) {
-            throw new Error('Invalid email or password');
+            throw new Error('Invalid email');
         }
 
         // Verify password
         const isPasswordValid = await this.comparePassword(password, user.password);
         if (!isPasswordValid) {
-            throw new Error('Invalid email or password');
+            throw new Error('Invalid password');
         }
 
         // Create token payload with role information
