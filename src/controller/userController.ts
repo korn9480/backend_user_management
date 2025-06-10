@@ -4,7 +4,7 @@ import { ApiResponse, ApiResponseVaildato, PaginatedResponse } from '../type/res
 import { ValidationError, validationResult } from "express-validator";
 import { PaginationHelper } from '../util/pagination';
 import { RoleService } from "../service/roleService";
-import { Prisma } from "@/prisma";
+import { Prisma } from "../../generated/prisma";
 
 
 export class UserController {

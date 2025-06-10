@@ -4,7 +4,7 @@ import { PermissionService } from "../service/permissionService";
 import { RolePermissionService } from "../service/rolePermissionService";
 import { ApiResponse } from '../type/response/response';
 import { RoleUser } from "../type/interface/enum/rolesUser";
-import { Prisma } from "@/prisma";
+import { Prisma } from "../../generated/prisma";
 import { UserService } from '../service/userService';
 
 interface SeedStats {

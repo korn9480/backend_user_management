@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { PrismaClient, User } from '@/prisma';
+import { PrismaClient, User } from '../../generated/prisma';
 import { envConfig } from '../config/environment';
 
 export interface LoginCredentials {

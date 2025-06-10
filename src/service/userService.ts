@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, User } from '@/prisma';
+import { Prisma, PrismaClient, User } from '../../generated/prisma';
 import { PaginationOptions } from '../util/pagination';
 import { AuthService } from './authService';
 

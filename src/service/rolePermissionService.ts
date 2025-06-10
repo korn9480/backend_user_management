@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Role_Permission } from '@/prisma/index';
+import { Prisma, PrismaClient, Role_Permission } from '../../generated/prisma/index';
 
 export class RolePermissionService {
     private readonly prisma: PrismaClient = new PrismaClient();
