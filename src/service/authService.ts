@@ -9,7 +9,6 @@ export interface LoginCredentials {
 }
 
 export interface AuthResponse {
-    user: Omit<User, 'password'>;
     token: string;
     expires_in: number;
 }
@@ -18,7 +17,6 @@ export interface TokenPayload {
     userId: number;
     email: string;
     role: string;
-    roleId: number;
 }
 
 export class AuthService {
@@ -101,17 +99,15 @@ export class AuthService {
             userId: user.id,
             email: user.email,
             role: user.role.name,  // 🔥 Use role.name instead of role
-            roleId: user.role_id
         };
 
         // Generate token
         const token = this.generateToken(tokenPayload);
 
         // Remove password from user object
-        const { password: _, ...userWithoutPassword } = user;
+        // const { password: _, ...userWithoutPassword } = user;
 
         return {
-            user: userWithoutPassword,
             token,
             expires_in: envConfig.JWT_EXPIRES_IN
         };
