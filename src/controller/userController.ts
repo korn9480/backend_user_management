@@ -4,6 +4,7 @@ import { ApiResponse, ApiResponseVaildato, PaginatedResponse } from '../type/res
 import { ValidationError, validationResult } from "express-validator";
 import { PaginationHelper } from '../util/pagination';
 import { RoleService } from "../service/roleService";
+import { Prisma } from "@/prisma";
 
 
 export class UserController {
@@ -20,6 +21,16 @@ export class UserController {
                     error: errors.array()
                 }
                 res.status(500).json(resError)
+                return
+            }
+            const formUser = req.body as Prisma.UserUncheckedCreateInput
+            const userOne = await this.userService.getUserByEmail(formUser.email)
+            if (userOne) {
+                const resError: ApiResponse<undefined> = {
+                    status: "error",
+                    message: `Invalid already users`
+                };
+                res.status(409).json(resError)
                 return
             }
             const user = await this.userService.createUser(req.body);

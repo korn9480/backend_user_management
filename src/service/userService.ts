@@ -97,6 +97,16 @@ export class UserService {
         return user;
     }
 
+    public async getUserByEmail(email: string): Promise<User | null> {
+        const user = await this.prisma.user.findUnique({
+            where: {email },
+            include: {
+                role: true
+            }
+        })
+        return user;
+    }
+
     public async updateUser(id: number, body: Prisma.UserUncheckedUpdateInput): Promise<User> {
         // Hash password if it's being updated
         if (body.password && typeof body.password === 'string') {
