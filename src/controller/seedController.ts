@@ -54,55 +54,68 @@ export class SeedController {
         }
     ]
 
-    public seedRolePermissions = async (req: Request, res: Response): Promise<void> => {
+    public seedRolePermissions = async (): Promise<void> => {
         try {
             console.log("🌱 Starting Role-Permission seeding...");
 
             // 1. Create Roles
-            console.log("📝 Creating roles...");
-            const rolesCreated = await this.roleService.createManyRoles(this.defaultRoles);
+            const roles = await this.roleService.getAllRoles()
+            let rolesCreated = 0
+            let permissionsCreated = 0
+            if (roles.length == 0) {
+                console.log("📝 Creating roles...");
+                rolesCreated = await this.roleService.createManyRoles(this.defaultRoles);
+            }
 
             // 2. Create Permissions  
-            console.log("🔐 Creating permissions...");
-            const permissionsCreated = await this.permissionService.createManyPermissions(this.defaultPermissions);
+            const permissions = await this.permissionService.getAllPermissions()
+            if (permissions.length == 0) {
+                console.log("🔐 Creating permissions...");
+                permissionsCreated = await this.permissionService.createManyPermissions(this.defaultPermissions);
+            }
 
             // 3. Create Role-Permission relationships
-            console.log("🔗 Creating role-permission relationships...");
+            const rolePermissions = await this.rolePermissionService.getAllRolePermissions()
             let rolePermissionsCreated = 0;
-
-            for (const [roleName, permissionNames] of Object.entries(this.rolePermissionMappings)) {
-                const role = await this.roleService.getRoleByName(roleName);
-                if (!role) {
-                    console.log(`⚠️  Role '${roleName}' not found, skipping...`);
-                    continue;
-                }
-
-                for (const permissionName of permissionNames) {
-                    const permission = await this.permissionService.getPermissionByName(permissionName);
-                    if (!permission) {
-                        console.log(`⚠️  Permission '${permissionName}' not found, skipping...`);
+            if (rolePermissions.length  == 0) {
+                console.log("🔗 Creating role-permission relationships...");
+                for (const [roleName, permissionNames] of Object.entries(this.rolePermissionMappings)) {
+                    const role = await this.roleService.getRoleByName(roleName);
+                    if (!role) {
+                        console.log(`⚠️  Role '${roleName}' not found, skipping...`);
                         continue;
                     }
-
-                    try {
-                        await this.rolePermissionService.createRolePermission({
-                            role_id: role.id,
-                            permission_id: permission.id
-                        });
-                        rolePermissionsCreated++;
-                    } catch (error) {
-                        // Skip duplicates
-                        console.log(`ℹ️  Role-Permission relation already exists: ${roleName} -> ${permissionName}`);
+    
+                    for (const permissionName of permissionNames) {
+                        const permission = await this.permissionService.getPermissionByName(permissionName);
+                        if (!permission) {
+                            console.log(`⚠️  Permission '${permissionName}' not found, skipping...`);
+                            continue;
+                        }
+    
+                        try {
+                            await this.rolePermissionService.createRolePermission({
+                                role_id: role.id,
+                                permission_id: permission.id
+                            });
+                            rolePermissionsCreated++;
+                        } catch (error) {
+                            // Skip duplicates
+                            console.log(`ℹ️  Role-Permission relation already exists: ${roleName} -> ${permissionName}`);
+                        }
+                    
+                    
                     }
-                
-                
                 }
             }
 
             let usersCreated = 0
-            for (const [_, user] of Object.entries(this.usersDefault)) {
-                await this.userService.createUser(user)
-                usersCreated += 1
+            const users = await this.userService.getUsersAll()
+            if (users.length == 0) {
+                for (const [_, user] of Object.entries(this.usersDefault)) {
+                    await this.userService.createUser(user)
+                    usersCreated += 1
+                }
             }
 
             const stats: SeedStats = {
@@ -113,22 +126,10 @@ export class SeedController {
             };
 
             console.log("✅ Seeding completed successfully!");
-            console.log("📊 Stats:", stats);
+            console.log("📊 create Stats:", stats);
 
-            const resData: ApiResponse<SeedStats> = {
-                status: "success",
-                message: "Role-Permission data seeded successfully",
-                data: stats
-            };
-
-            res.status(201).json(resData);
         } catch (error) {
             console.error("❌ Seeding failed:", error);
-            const resError: ApiResponse<undefined> = {
-                status: "error",
-                message: `Seeding failed: ${error}`
-            };
-            res.status(500).json(resError);
         }
     };
 }

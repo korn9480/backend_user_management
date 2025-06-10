@@ -3,6 +3,7 @@ import { mainRouter } from './route';
 import { envConfig } from './config/environment';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import cors from 'cors';
+import { seedController } from './controller/seedController';
 
 class Server {
     private app: Application;
@@ -55,6 +56,7 @@ class Server {
         try {
             // Connect to database first
             await connectDatabase();
+            seedController.seedRolePermissions()
 
             // Start server
             this.app.listen(this.port, () => {
