@@ -4,6 +4,7 @@ generated/
 # Production builds
 dist/
 build/
+prisma/migrations
 
 # Environment variables
 # .env

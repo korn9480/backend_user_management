@@ -35,9 +35,6 @@ class Server {
     private initializeRoutes(): void {
         this.app.use(cors({
             origin: '*',
-            // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-            // allowedHeaders: ['Content-Type', 'Authorization'],
-            // credentials: true,
         }));
         // Use main router with API prefix
         this.app.use("/api/v1", mainRouter);
@@ -53,10 +50,10 @@ class Server {
     }
 
     public async start(): Promise<void> {
-        try {
+        // try {
             // Connect to database first
             await connectDatabase();
-            seedController.seedRolePermissions()
+            await seedController.seedRolePermissions()
 
             // Start server
             this.app.listen(this.port, () => {
@@ -65,10 +62,10 @@ class Server {
                 console.log(`🌍 Environment: ${envConfig.NODE_ENV}`);
                 console.log('');
             });
-        } catch (error) {
-            console.error('❌ Failed to start server:', error);
-            process.exit(1);
-        }
+        // } catch (error) {
+            // console.error('❌ Failed to start server:', error);
+            // process.exit(1);
+        // }
     }
 }
 

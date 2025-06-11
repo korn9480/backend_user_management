@@ -130,6 +130,7 @@ export class SeedController {
 
         } catch (error) {
             console.error("❌ Seeding failed:", error);
+            throw error
         }
     };
 }

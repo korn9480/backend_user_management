@@ -1,0 +1,1 @@
+bun run start || bunx prisma migrate dev --name init && bun run start
