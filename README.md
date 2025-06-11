@@ -1,166 +1,60 @@
 # 🚀 Backend User Management
 
-โปรเจค Backend สำหรับจัดการผู้ใช้และระบบสิทธิ์ โดยใช้ Bun, Express.js, TypeScript และ Prisma ORM
+โปรเจค Backend สำหรับจัดการผู้ใช้และระบบสิทธิ์
 
-## 📋 Features
+## 🛠 เทคโนโลยีที่ใช้
+- **Framework:** Express.js, TypeScript
+- **Database ORM:** Prisma ORM
+- **Runtime:** Bun
+- **Database:** MySQL (ใช้ใน Docker)
 
-- 🔐 **Authentication** - JWT-based authentication
-- 👥 **User Management** - CRUD operations สำหรับผู้ใช้
-- 🛡️ **Role-Based Permissions** - ระบบจัดการสิทธิ์แบบ Role-Permission
-- 🗄️ **Database** - MySQL database ด้วย Prisma ORM
-- 🏗️ **TypeScript** - Type-safe development
-- ⚡ **Bun Runtime** - Fast JavaScript runtime
+## ⚡ วิธีติดตั้ง
 
-## 🔧 Prerequisites
+1. โคลนโปรเจค  
+   ```bash
+   git clone https://github.com/korn9480/backend_user_management.git
+   cd backend_user_management
+   ```
+2. สร้าง network ชื่อ `dev`  
+   ```bash
+   docker network create dev
+   ```
+3. สร้าง server database  
+   ```bash
+   docker compose up -d db
+   ```
+4. สร้าง database ชื่อ `user_management` ใน MySQL (เข้าไปสร้างใน container หรือใช้ client tool)
 
-ตรวจสอบให้แน่ใจว่าได้ติดตั้งสิ่งต่อไปนี้แล้ว:
+5. สร้างและรัน backend  
+   ```bash
+   docker compose up -d --build backend_user_management
+   ```
+6. เมื่อรันโปรเจค ระบบจะสร้างข้อมูล default ให้อัตโนมัติ
 
-- **[Bun](https://bun.sh)** v1.2.9 หรือสูงกว่า
-- **MySQL** 8.0 หรือสูงกว่า
-- **Git** สำหรับ version control
+7. URL ของ api
 
-### ตรวจสอบการติดตั้ง
-
-```bash
-# ตรวจสอบ Bun version
-bun --version
-
-# ตรวจสอบ MySQL
-mysql --version
+เปิดเบราว์เซอร์และไปที่:
+```
+http://localhost:3001
 ```
 
-## 🚀 Quick Start
+---
 
-### 1. Clone Repository
+### 🔧 การพัฒนาเพิ่มเติม
 
-```bash
-git clone <your-repository-url>
-cd backend_user_management
-```
+ การติดตั้งในโหมดพัฒนา (Development Mode)
 
-### 2. ติดตั้ง Dependencies
+หากต้องการพัฒนาโปรเจคเพิ่มเติม:
 
 ```bash
-# ติดตั้ง packages ทั้งหมด
+# ติดตั้ง dependencies
 bun install
-```
 
-### 3. ปรับค่า Environment Variables
-
-สามารถปรับเเต่งค่า .env ได้ตามความเหมาะสมครับ
-
-### 4. ตั้งค่า Database
-
-#### สร้าง Database
-
-```bash
-# เข้า MySQL console
-    docker compose up -d db
-```
-
-#### รัน Prisma Migrations
-
-```bash
-# Generate Prisma Client
-bun prisma generate
-
-# รัน database migrations
-bun prisma migrate dev --name init
-```
-
-### 5. รันโปรเจค
-
-```bash
-# Development mode (แนะนำ)
+# รันในโหมดพัฒนา
 bun run dev
 ```
 
-เซิร์ฟเวอร์จะรันที่: **http://localhost:3001**
-
-API Base URL: **http://localhost:3001/api/v1**
-
-## 📁 โครงสร้างโปรเจค
-
-```
-backend_user_management/
-├── prisma/
-│   ├── schema.prisma          # Database schema
-│   └── migrations/            # Database migrations
-├── src/
-│   ├── config/
-│   │   ├── database.ts        # Database connection
-│   │   └── environment.ts     # Environment variables
-│   ├── controller/
-│   │   ├── authController.ts  # Authentication logic
-│   │   ├── userController.ts  # User management
-│   │   ├── healthController.ts # Health check
-│   │   └── seedController.ts  # Database seeding
-│   ├── middleware/
-│   │   └── auth.ts           # JWT middleware
-│   ├── routes/
-│   │   ├── authRoutes.ts     # Auth endpoints
-│   │   ├── userRoutes.ts     # User endpoints
-│   │   ├── healthRoutes.ts   # Health check
-│   │   └── seedRoutes.ts     # Seed endpoints
-│   ├── service/
-│   │   ├── authService.ts    # Auth business logic
-│   │   ├── userService.ts    # User business logic
-│   │   ├── roleService.ts    # Role management
-│   │   └── permissionService.ts # Permission management
-│   ├── validator/
-│   │   ├── authValidator.ts  # Auth validation
-│   │   └── userValidator.ts  # User validation
-│   ├── route.ts              # Main router
-│   └── index.ts              # Application entry point
-├── dist/                     # Compiled JavaScript (build output)
-├── .env                      # Environment variables
-├── package.json
-├── tsconfig.json
-└── README.md
-```
-
-## 🛠️ Available Scripts
-
-```bash
-# Development
-bun run dev              # รันโปรเจคในโหมด development
-bun run dev:ts           # รันด้วย ts-node-dev (hot reload)
-
-# Production
-bun run build            # Compile TypeScript to JavaScript
-bun run start            # รันจาก compiled files (dist/)
-bun run prod             # รันโปรเจคในโหมด production
-
-# Database
-bun prisma generate      # Generate Prisma client
-bun prisma migrate dev   # รัน migrations (development)
-bun prisma migrate deploy # รัน migrations (production)
-bun prisma studio        # เปิด Prisma Studio (database GUI)
-bun prisma db push       # Push schema ไป database โดยตรง
-bun prisma db seed       # รัน database seeding (หากมี)
-
-# Utilities
-bun install              # ติดตั้ง dependencies
-bun test                 # รัน tests (หากมี)
-```
-
-## 🗄️ Database Schema
-
-ระบบใช้ MySQL database ด้วย Prisma ORM:
-
-### Tables
-
-- **User** - ข้อมูลผู้ใช้ (id, name, email, password, role_id)
-- **Role** - บทบาท (id, name)
-- **Permission** - สิทธิ์ (id, name)
-- **Role_Permission** - ความสัมพันธ์ระหว่าง Role และ Permission
-
-### Relations
-
-- User → Role (Many-to-One)
-- Role → Permission (Many-to-Many through Role_Permission)
-
-## 🔌 API Endpoints
+## 📚 API ในโปรเจค
 
 ### Health Check
 - `GET /api/v1/health` - ตรวจสอบสถานะเซิร์ฟเวอร์
@@ -168,6 +62,8 @@ bun test                 # รัน tests (หากมี)
 ### Authentication
 - `POST /api/v1/auth/login` - เข้าสู่ระบบ
 - `POST /api/v1/auth/register` - สมัครสมาชิก
+- `GET /api/v1/auth/me` - ดึงข้อมูลผู้ใช้ด้วย token
+- `POST /api/v1/auth/verify` - ตรวจสอบ token
 
 ### User Management
 - `GET /api/v1/users` - ดึงรายการผู้ใช้ทั้งหมด
@@ -175,3 +71,17 @@ bun test                 # รัน tests (หากมี)
 - `POST /api/v1/users` - สร้างผู้ใช้ใหม่
 - `PUT /api/v1/users/:id` - อัปเดตข้อมูลผู้ใช้
 - `DELETE /api/v1/users/:id` - ลบผู้ใช้
+
+## ➕ สิ่งพัฒนาเพิ่มจากครั้งเเรก
+
+### 🚀 Api
+
+- `POST /api/v1/auth/register` - สมัครสมาชิก
+
+### 🤔 Logic
+
+1. ก่อนสร้าง user จะมีการ check ว่าอีเมลที่สมัครถูกใช้ไปหรือยัง
+
+2. เปลี่ยนวิธีการ set ข้อมูล database ค่าเริ่มต้น จากสร้าง ใช้ api เปลี่ยนมาใช้  ให้เองอัตโนมัติเมื่อ run โปรเจค
+
+3. build โปรเจคเป็น docker containers
