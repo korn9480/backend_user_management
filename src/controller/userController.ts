@@ -20,7 +20,7 @@ export class UserController {
                     status: "error",
                     error: errors.array()
                 }
-                res.status(500).json(resError)
+                res.status(400).json(resError)
                 return
             }
             const formUser = req.body as Prisma.UserUncheckedCreateInput
@@ -43,7 +43,7 @@ export class UserController {
                 data: userWithoutPassword,
                 status: "success"
             };
-            res.json(resData);
+            res.status(201).json(resData);
         } catch (error) {
             const resError: ApiResponse<undefined> = {
                 status: "error",

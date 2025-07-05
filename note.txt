@@ -6,3 +6,11 @@ bunx prisma generate
 
 bunx prisma migrate dev --name init
 bunx prisma migrate reset
+
+bun run test test/user/userRoute.test.ts
+
+ฉันรันไฟล์ unit test ของ userRoute.test.ts เเล้ว error แบบนี้ 
+ _body: {
+    status: 'error',
+    message: "TypeError: Cannot destructure property 'password' of 'user' as it is undefined."
+  },
