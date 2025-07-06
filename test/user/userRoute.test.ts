@@ -1,6 +1,6 @@
 import request from "supertest";
 import express from "express";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, Mock, Mocked } from "vitest";
 import { mainRouter } from "../../src/route";
 import { UserService } from "../../src/service/userService";
 import { Prisma } from "../../generated/prisma";
@@ -16,10 +16,16 @@ interface MockCatchUser {
 
 // Mock the UserService module
 vi.mock("../../src/service/userService", () => {
-  const mockUserService = {
+  const mockUserService: Partial<UserService>= {
     createUser: vi.fn(),
+    updateUser: vi.fn(),
+    deleteUser: vi.fn(),
+    getUserById: vi.fn(),
+    getUsersAll: vi.fn(),
     getUserByEmail: vi.fn(),
     getUsersWithPagination: vi.fn(), // Add this line
+    updateUserRole: vi.fn(),
+    getUsersByRoleId: vi.fn(),
   };
   return {
     UserService: vi.fn(() => mockUserService),
@@ -30,95 +36,94 @@ const app = express();
 app.use(express.json());
 app.use(mainRouter);
 
-// describe("POST /user", () => {
-//   let mockedUserService: vi.Mocked<UserService>;
+describe("POST /user", () => {
+  let mockedUserService: Mocked<UserService>;
 
-//   beforeEach(() => {
-//     vi.clearAllMocks();
-//     mockedUserService = new UserService() as vi.Mocked<UserService>;
-//     // Setup the mock implementation
-//     mockedUserService.getUserByEmail.mockResolvedValue(null);
-//     mockedUserService.createUser.mockResolvedValue({
-//       id: 1,
-//       name: "Test User",
-//       email: "test@example.com",
-//       password: "hashedpassword",
-//       role_id: 1,
-//       createdAt: new Date(),
-//       updatedAt: new Date(),
-//     });
-//   });
-//   const baseData: Prisma.UserUncheckedUpdateInput = { name: "Test User", email: "test@example.com", password: "123456", role_id: 1 }
-//   const testValidate: MockCatchUser[] = [
-//     {
-//       messageIt: "validator password < 6",
-//       data: { ...baseData, password: "12345"},
-//       test: {
-//         statusCode: 400,
-//         message: "Password must be at least 6 characters long"
-//       }
-//     },
-//     {
-//       messageIt: "validator email error Invalid email format",
-//       data: { ...baseData, email: "testex.com" },
-//       test: {
-//         statusCode: 400,
-//         message: "Invalid email format"
-//       }
-//     },
-//     {
-//       messageIt: "password null",
-//       data: { ...baseData, password: undefined },
-//       test: {
-//         statusCode: 400,
-//         message: "Required"
-//       }
-//     },
-//     {
-//       messageIt: "email null",
-//       data: { ...baseData, email: undefined },
-//       test: {
-//         statusCode: 400,
-//         message: "Required"
-//       }
-//     },
-//     {
-//       messageIt: "name null",
-//       data: { ...baseData, name: undefined },
-//       test: {
-//         statusCode: 400,
-//         message: "Required"
-//       }
-//     },
-//   ]
+  
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedUserService = new UserService() as Mocked<UserService>;
+    // Setup the mock implementation
+    mockedUserService.createUser.mockResolvedValue({
+      id: 1,
+      name: "Test User",
+      email: "test@example.com",
+      password: "hashedpassword",
+      role_id: 1,
+      createdAt: new Date(),
+    });
+  });
+  const baseData: Prisma.UserUncheckedUpdateInput = { name: "Test User", email: "test@example.com", password: "123456", role_id: 1 }
+  const testValidate: MockCatchUser[] = [
+    {
+      messageIt: "validator password < 6",
+      data: { ...baseData, password: "12345"},
+      test: {
+        statusCode: 400,
+        message: "Password must be at least 6 characters long"
+      }
+    },
+    {
+      messageIt: "validator email error Invalid email format",
+      data: { ...baseData, email: "testex.com" },
+      test: {
+        statusCode: 400,
+        message: "Invalid email format"
+      }
+    },
+    {
+      messageIt: "password null",
+      data: { ...baseData, password: undefined },
+      test: {
+        statusCode: 400,
+        message: "Required"
+      }
+    },
+    {
+      messageIt: "email null",
+      data: { ...baseData, email: undefined },
+      test: {
+        statusCode: 400,
+        message: "Required"
+      }
+    },
+    {
+      messageIt: "name null",
+      data: { ...baseData, name: undefined },
+      test: {
+        statusCode: 400,
+        message: "Required"
+      }
+    },
+  ]
 
-//   it("should create a user and return 201", async () => {
+  it("should create a user and return 201", async () => {
 
-//     // Make the request
-//     const res = await request(app)
-//     .post("/user/")
-//     .send({ name: "Test User", email: "test@example.com", password: "123456", role_id: 1 });
-//     // Assert the response
-//     expect(res.status).toBe(201);
-//     expect(res.body.message).toBe("user created successfully");
-//     expect(res.body.data.email).toBe("test@example.com");
-//   });
-//   for (let item of testValidate) {
-//     it(item.messageIt, async () => {
-//       const res = await request(app).post("/user")
-//       .send(item.data);
-//       expect(res.status).toBe(item.test.statusCode);
-//       expect(res.body.message).toBe(item.test.message)
-//     })
-//   }
-// });
+    // Make the request
+    const res = await request(app)
+    .post("/user/")
+    .send({ name: "Test User", email: "test@example.com", password: "123456", role_id: 1 });
+    // Assert the response
+    expect(res.status).toBe(201);
+    expect(res.body.message).toBe("user created successfully");
+    expect(res.body.data.email).toBe("test@example.com");
+  });
+  for (let item of testValidate) {
+    it(item.messageIt, async () => {
+      const res = await request(app).post("/user")
+      .send(item.data);
+      expect(res.status).toBe(item.test.statusCode);
+      expect(res.body.message).toBe(item.test.message)
+    })
+  }
+});
 
 describe("GET /user", () => {
-  let mockedUserService: vi.Mocked<UserService>;
+  let mockedUserService: Mocked<UserService>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockedUserService = new UserService() as vi.Mocked<UserService>;
+    mockedUserService = new UserService() as Mocked<UserService>;
   });
 
   it("should return a list of users with pagination", async () => {
