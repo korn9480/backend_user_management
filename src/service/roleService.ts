@@ -1,7 +1,8 @@
 import { Prisma, PrismaClient, Role } from '../../generated/prisma/index';
+import { prismaClient } from '../config/prisma';
 
 export class RoleService {
-    private readonly prisma: PrismaClient = new PrismaClient();
+    private readonly prisma: PrismaClient = prismaClient;
 
     public async getAllRoles(): Promise<Role[]> {
         return await this.prisma.role.findMany({

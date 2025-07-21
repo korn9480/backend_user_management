@@ -1,7 +1,8 @@
 import { Prisma, PrismaClient, Permission } from '../../generated/prisma/index';
+import { prismaClient } from '../config/prisma';
 
 export class PermissionService {
-    private readonly prisma: PrismaClient = new PrismaClient();
+    private readonly prisma: PrismaClient = prismaClient;
 
     public async getAllPermissions(): Promise<Permission[]> {
         return await this.prisma.permission.findMany({

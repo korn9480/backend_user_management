@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient, User } from '../../generated/prisma';
 import { envConfig } from '../config/environment';
+import { prismaClient } from '../config/prisma';
 
 export interface LoginCredentials {
     email: string;
@@ -20,7 +21,7 @@ export interface TokenPayload {
 }
 
 export class AuthService {
-    private readonly prisma: PrismaClient = new PrismaClient();
+    private readonly prisma: PrismaClient = prismaClient;
     private readonly saltRounds = 12;
 
     /**

@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient, User } from '../../generated/prisma';
 import { PaginationOptions } from '../util/pagination';
 import { AuthService } from './authService';
+import { prismaClient } from '../config/prisma';
 
 export interface UserWithPagination {
     users: User[];
@@ -8,7 +9,7 @@ export interface UserWithPagination {
 }
 
 export class UserService {
-    private readonly prisma: PrismaClient = new PrismaClient();
+    private readonly prisma: PrismaClient = prismaClient;
     private readonly authService = new AuthService();
 
     public async getUsersAll(): Promise<User[]> {
