@@ -1,31 +1,43 @@
-import { expect, test, vi } from "vitest"
+import { afterAll, describe, expect, test, vi } from "vitest"
 import { UserService } from "../../src/service/userService"
 import { Prisma } from "../../generated/prisma"
 import prisma from '../libs/__mocks__/prisma'
 import { AuthService } from "../../src/service/authService"
+import { prismaClient } from "../../src/config/prisma"
 
-vi.mock('../../src/config/prisma', async () => {
-    const prisma = await import('../libs/__mocks__/prisma')
-    return {
-        prismaClient: prisma.default
-    }
+
+if (process.env.VITE_USER_NODE_ENV !== 'test') {
+    throw new Error('This test file should only be run in a test environment')
+}
+
+afterAll(async () => {
+    await prismaClient.user.deleteMany()
 })
-
-vi.mock("../../src/service/authService")
 
 const userService = new UserService()
 
-test('createUser should return the generated user', async () => {
-    const newUser: Prisma.UserUncheckedCreateInput = { email: 'user@prisma.io', name: 'Prisma Fan', password: "123456", role_id: 1}
-    const hashedPassword = 'hashed_password'
-    const createdAt = new Date()
-
-    vi.spyOn(AuthService.prototype, 'hashPassword').mockResolvedValue(hashedPassword)
-
-    prisma.user.create.mockResolvedValue({...newUser, id: 1, password: hashedPassword, createdAt, role_id: 1  })
+describe('UserService Tests', () => {
+    test('createUser should return the generated user', async () => {
+        const newUser: Prisma.UserUncheckedCreateInput = { email: 'user@prisma.io', name: 'Prisma Fan', password: "123456", role_id: 1}    
+        const userCreate = await userService.createUser(newUser)
+        
+        const user = await userService.getUserById(userCreate.id)
+        expect(user).not.toBeNull()
+        expect(user).not.toBeUndefined()
+        expect(user?.id).toBe(userCreate.id)
+    })
     
-    const user = await userService.createUser(newUser)
+    test('getUserByEmail should return the user', async () => {
+        const email = "user@prisma.io"
+        const user = await userService.getUserByEmail(email)
+        expect(user).not.toBeNull()
+        expect(user).not.toBeUndefined()
+    })
     
-    expect(user).toStrictEqual({ ...newUser, id: 1, password: hashedPassword, createdAt})
+    test('getUserByEmail should return null or find not found email', async () => {
+        const email = ""
+        const user = await userService.getUserByEmail(email)
+        expect(user).toBeNull()
+    })    
 })
 
